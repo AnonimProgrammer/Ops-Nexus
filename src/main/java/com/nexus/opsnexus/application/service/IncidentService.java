@@ -2,21 +2,25 @@ package com.nexus.opsnexus.application.service;
 
 import com.nexus.opsnexus.application.dto.CreateIncidentCommand;
 import com.nexus.opsnexus.application.dto.IncidentView;
+import com.nexus.opsnexus.application.dto.NotificationMessage;
 import com.nexus.opsnexus.application.exception.IncidentNotFoundException;
 import com.nexus.opsnexus.application.mapper.IncidentMapper;
 import com.nexus.opsnexus.application.port.input.IncidentUseCase;
 import com.nexus.opsnexus.application.port.output.IncidentRepositoryPort;
+import com.nexus.opsnexus.application.port.output.NotifyAuthorityPort;
+import com.nexus.opsnexus.domain.model.Authority;
 import com.nexus.opsnexus.domain.model.Incident;
+import com.nexus.opsnexus.domain.policy.NotificationPolicy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 
 @Slf4j
-@Service
 @RequiredArgsConstructor
 public class IncidentService implements IncidentUseCase {
 
     private final IncidentRepositoryPort incidentRepositoryPort;
+    private final NotifyAuthorityPort notifyAuthorityPort;
+    private final NotificationPolicy notificationPolicy;
     private final IncidentMapper incidentMapper;
 
     @Override
@@ -25,10 +29,18 @@ public class IncidentService implements IncidentUseCase {
                 command.type(), command.severity(), command.reason());
 
         Incident incident = incidentMapper.toModel(command);
-        Incident saveIncident = incidentRepositoryPort.save(incident);
+        Incident savedIncident = incidentRepositoryPort.save(incident);
+        log.info("Created incident. ID: {}", savedIncident.getId());
 
-        log.info("Created incident. ID: {}", saveIncident.getId());
-        return incidentMapper.toView(saveIncident);
+        notifyAuthority(savedIncident);
+        return incidentMapper.toView(savedIncident);
+    }
+
+    private void notifyAuthority(Incident incident) {
+        Authority authority = notificationPolicy.resolveAuthority(incident.getSeverity());
+        notifyAuthorityPort.notify(authority, NotificationMessage.forIncidentOpened(incident));
+
+        log.info("Authority notified. Authority: {}, ID: {}", authority.toString(), incident.getId());
     }
 
     @Override

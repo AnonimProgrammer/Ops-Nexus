@@ -1,7 +1,5 @@
 # OpsNexus
 
-## Overview
-
 **OpsNexus** is a lightweight incident management service that tracks incidents, determines the responsible authority based on severity, and triggers notifications accordingly.
 
 It provides a clear incident lifecycle (`OPEN → ACKNOWLEDGED → RESOLVED`) and serves as a foundation for alerting workflows.
@@ -41,7 +39,7 @@ These adapters implement application-defined ports.
 
 ### Architecture Diagram
 
-![Architecture Diagram](./Screenshot%202025-12-25%20at%2003.54.40.png)
+<img src="./diagram/ops-nexus-arch.png" alt="Architecture Diagram" width="700"/>
 
 ---
 
@@ -51,3 +49,10 @@ These adapters implement application-defined ports.
 - The project intentionally avoids overengineering and focuses on **clarity and correctness**.
 - External integrations can be replaced without impacting domain or application logic.
 
+---
+
+<p align="center">
+  <b>Omar Ismayilov</b><br>
+  <i>Software Engineer • Backend & System Design Enthusiast</i><br>
+  Building reliable systems with simplicity and architecture in mind.
+</p>
